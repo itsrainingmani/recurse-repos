@@ -97,16 +97,6 @@ try {
 		}
 	}
 
-	// let member = 'itsrainingmani';
-	// const result: any = await octokit.graphql(query, {
-	// 	queryString: `user:${member}`,
-	// });
-
-	// if (result !== undefined) {
-	// 	let repos = result['search']['nodes'][0]['repositories']['nodes'];
-	// 	console.log(JSON.stringify(repos));
-	// }
-
 	Bun.write('all_repos.json', JSON.stringify(all_repos));
 } catch (error) {
 	if (error instanceof GraphqlResponseError) {
