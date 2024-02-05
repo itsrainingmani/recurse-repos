@@ -24,7 +24,7 @@ try {
     memberData = [...memberData, ...data];
   }
 
-  const path = "./members.json";
+  const path = ".data/members.json";
   const bytes = await Bun.write(path, JSON.stringify(memberData));
   console.log(`${bytes} bytes written to file`);
 } catch (error: any) {
