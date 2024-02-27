@@ -4,7 +4,7 @@ const members_file = Bun.file("./data/members.json");
 let rc_members: Array<Member> = await members_file.json();
 let list_rc_members = rc_members.map((member) => member.login);
 
-function is_required(name) {
+function is_required(name: string) {
   throw new Error(`Argument, \`${name}\`, is required.`);
 }
 

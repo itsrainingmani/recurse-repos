@@ -1,12 +1,12 @@
-import { graphql, GraphqlResponseError } from "@octokit/graphql";
-import { Octokit } from "octokit";
-import type { Member } from "./utils";
+import { graphql, GraphqlResponseError } from '@octokit/graphql';
+import { Octokit } from 'octokit';
+import type { Member } from './utils';
 
 const octokit = new Octokit({
-  auth: process.env["GITHUB_TOKEN"],
+	auth: process.env['GITHUB_TOKEN'],
 });
 
-const members_file = Bun.file("./data/members.json");
+const members_file = Bun.file('../data/members.json');
 let rc_members: Array<Member> = await members_file.json();
 let list_rc_members = rc_members.map((member) => member.login);
 
@@ -61,28 +61,28 @@ query listTopRepos($queryString: String!) {
 let all_repos: any[] = [];
 
 try {
-  for (let member of list_rc_members) {
-    console.log(`Current user - ${member}`);
-    const result: any = await octokit.graphql(query, {
-      queryString: `user:${member}`,
-    });
+	for (let member of list_rc_members) {
+		console.log(`Current user - ${member}`);
+		const result: any = await octokit.graphql(query, {
+			queryString: `user:${member}`,
+		});
 
-    if (result !== undefined) {
-      let search_results: any[] = result["search"]["nodes"];
-      if (search_results.length > 0) {
-        let repos = result["search"]["nodes"][0]["repositories"]["nodes"];
-        all_repos.push({ user: member, repos: repos });
-      }
-    }
-  }
+		if (result !== undefined) {
+			let search_results: any[] = result['search']['nodes'];
+			if (search_results.length > 0) {
+				let repos = result['search']['nodes'][0]['repositories']['nodes'];
+				all_repos.push({ user: member, repos: repos });
+			}
+		}
+	}
 
-  Bun.write("./data/all_repos.json", JSON.stringify(all_repos));
+	Bun.write('../data/all_repos.json', JSON.stringify(all_repos));
 } catch (error) {
-  if (error instanceof GraphqlResponseError) {
-    console.error(
-      `Request Failed: ${error.request} with message: ${error.message}`,
-    );
-  } else {
-    console.error(error);
-  }
+	if (error instanceof GraphqlResponseError) {
+		console.error(
+			`Request Failed: ${error.request} with message: ${error.message}`
+		);
+	} else {
+		console.error(error);
+	}
 }
