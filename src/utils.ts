@@ -45,6 +45,16 @@ export interface UserRepos {
 	repos: Repo[];
 }
 
+export interface ProcessedRepo {
+	name: string;
+	owner: string;
+	description: string;
+	createdAt: string;
+	url: string;
+	readme: string;
+	languages: string[];
+}
+
 export function preprocessReadmeForEmbedding(readmeContent: string): string {
 	// Remove Markdown URLS
 	let cleanedContent = readmeContent.replace(/\[([^\]]+)\]\([^)]+\)/g, '$1');

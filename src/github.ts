@@ -27,7 +27,7 @@ async function getGithubOrgUsers() {
 			memberData = [...memberData, ...data];
 		}
 
-		const path = '.data/members.json';
+		const path = '../data/members.json';
 		const bytes = await Bun.write(path, JSON.stringify(memberData));
 		console.log(`${bytes} bytes written to file`);
 	} catch (error: any) {
@@ -40,7 +40,7 @@ async function getGithubOrgUsers() {
 	}
 }
 
-async function getTop50repos() {
+async function getTop30repos() {
 	const members_file = Bun.file('../data/members.json');
 	let rc_members: Array<Member> = await members_file.json();
 	let list_rc_members = rc_members.map((member) => member.login);

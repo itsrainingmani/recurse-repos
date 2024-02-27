@@ -1,6 +1,8 @@
 import {
 	constructMetadataString,
+	preprocessReadmeForEmbedding,
 	type Member,
+	type ProcessedRepo,
 	type Repo,
 	type UserRepos,
 } from './utils';
@@ -34,10 +36,6 @@ async function paginated_fetch(
 }
 
 async function getAllRecursers() {
-	const members_file = Bun.file('../data/members.json');
-	let rc_members: Array<Member> = await members_file.json();
-	let list_rc_members = rc_members.map((member) => member.login);
-
 	try {
 		console.log('Getting Recurse profiles');
 		let profiles = await paginated_fetch(
@@ -74,15 +72,15 @@ async function recursersByStint() {
 	}
 }
 
-async function printRepoNamesAndOwners() {
-	const repoFile = Bun.file('../data/all_repos_partial.json');
-	const data: UserRepos[] = await repoFile.json();
+async function printRepoNamesAndOwners(user_limit = 5, repo_limit = 5) {
+	const repoFile = Bun.file('../data/all_repos.json');
+	const users: UserRepos[] = await repoFile.json();
 
 	let total_repos = 0;
-	for (const datum of data.slice(0, 5)) {
+	for (const datum of users.slice(0, user_limit)) {
 		console.log(datum.user);
 		total_repos += datum.repos.length;
-		for (const repo of datum.repos.slice(0, 1)) {
+		for (const repo of datum.repos.slice(0, repo_limit)) {
 			let metadata = constructMetadataString(repo);
 			console.log(metadata);
 		}
@@ -92,7 +90,7 @@ async function printRepoNamesAndOwners() {
 }
 
 async function constructReadmeData() {
-	const repoFile = Bun.file('../data/all_repos_partial.json');
+	const repoFile = Bun.file('../data/all_repos.json');
 	const data: UserRepos[] = await repoFile.json();
 
 	const readmeFile = Bun.file('../data/readme-data.txt');
@@ -113,5 +111,40 @@ async function constructReadmeData() {
 		}
 	}
 }
+
+async function simplifyRepoInformation() {
+	const repoFile = Bun.file('../data/all_repos.json');
+	const data: UserRepos[] = await repoFile.json();
+
+	const readmeFile = Bun.file('../data/repos.json');
+	// const writer = readmeFile.writer();
+	let every_repo: ProcessedRepo[] = [];
+	for (const datum of data) {
+		let user_information;
+		for (const repo of datum.repos) {
+			let processed_readme = '';
+			if (repo.object) {
+				processed_readme = preprocessReadmeForEmbedding(repo.object.text);
+			}
+			let current_repo: ProcessedRepo = {
+				name: repo.name,
+				owner: repo.owner.login,
+				description: repo.description ?? '',
+				createdAt: repo.createdAt,
+				url: repo.url,
+				readme: processed_readme,
+				languages: repo.languages.nodes.map((n) => n.name),
+			};
+
+			if (current_repo.readme.length > 0) {
+				every_repo.push(current_repo);
+			}
+		}
+	}
+
+	Bun.write(readmeFile, JSON.stringify(every_repo));
+}
+
+simplifyRepoInformation();
 
 // constructReadmeData();
